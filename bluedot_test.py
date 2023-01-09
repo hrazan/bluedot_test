@@ -3,6 +3,8 @@ from signal import pause
 import time
 from PCA9685 import PCA9685
 
+
+
 class Motor:
     def __init__(self):
         self.pwm = PCA9685(0x40, debug=True)
@@ -77,45 +79,78 @@ class Motor:
         self.left_Lower_Wheel(-duty2)
         self.right_Upper_Wheel(-duty3)
         self.right_Lower_Wheel(-duty4)
-     
+
+
+status = 0
+prev_status = 0
     
-def stop():
-    PWM.setMotorModel(0,0,0,0)                   #Stop     
+def stop(pos):
+    global status
+    global prev_status
+    status = 0
+    PWM.setMotorModel(0,0,0,0)                   #Stop
+    prev_status = status
 
 def forward(pos):
+    global status
+    global prev_status
+    status = 1
     print("forward")
-    PWM.setMotorModel(2000,2000,2000,2000)       #Forward
-    time.sleep(1)
-    stop()
+    move_motor()
+    prev_status = status
     
 def back(pos):
+    global status
+    global prev_status
+    status = 2
     print("back")
-    PWM.setMotorModel(-2000,-2000,-2000,-2000)   #Back
-    time.sleep(1)
-    stop()
+    move_motor()
+    prev_status = status
     
 def left(pos):
+    global status
+    global prev_status
+    status = 3
     print("left")
-    PWM.setMotorModel(-500,-500,2000,2000)       #Left 
-    time.sleep(1)
-    stop()
+    move_motor()
+    prev_status = status
     
 def right(pos):
+    global status
+    global prev_status
+    status = 4
     print("right")
-    PWM.setMotorModel(2000,2000,-500,-500)       #Right 
-    time.sleep(1)
-    stop()
-       
-            
+    move_motor()
+    prev_status = status
+
+def move_motor():
+    if status != prev_status:
+        if status == 1:
+            PWM.setMotorModel(2000,2000,2000,2000)       #Forward
+        elif status == 2:
+            PWM.setMotorModel(-2000,-2000,-2000,-2000)   #Back
+        elif status == 3:
+            PWM.setMotorModel(-500,-500,2000,2000)       #Left
+        elif status == 4:
+            PWM.setMotorModel(2000,2000,-500,-500)       #Right
+
 PWM=Motor()
 bd = BlueDot(cols=3, rows=3)
 
-bd[0,0].visible = False
-bd[1,0].when_pressed = forward
-bd[2,0].visible = False
-bd[0,1].when_pressed = left
-bd[1,1].visible = False
-bd[2,1].when_pressed = right
-bd[0,2].visible = False
-bd[1,2].when_pressed = back
-bd[2,2].visible = False
+if __name__ == '__main__':
+    PWM.setMotorModel(0,0,0,0)
+    bd[0,0].visible = False
+    bd[1,0].when_pressed = forward
+    bd[1,0].when_released = stop
+    bd[2,0].visible = False
+    bd[0,1].when_pressed = left
+    bd[0,1].when_released = stop
+    bd[1,1].visible = False
+    bd[2,1].when_pressed = right
+    bd[2,1].when_released = stop
+    bd[0,2].visible = False
+    bd[1,2].when_pressed = back
+    bd[1,2].when_released = stop
+    bd[2,2].visible = False
+    
+    
