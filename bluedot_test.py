@@ -4,7 +4,6 @@ import time
 from PCA9685 import PCA9685
 
 
-
 class Motor:
     def __init__(self):
         self.pwm = PCA9685(0x40, debug=True)
@@ -83,7 +82,10 @@ class Motor:
 
 status = 0
 prev_status = 0
-    
+
+PWM=Motor()
+bd = BlueDot(cols=3, rows=3)
+
 def stop(pos):
     global status
     global prev_status
@@ -126,16 +128,14 @@ def right(pos):
 def move_motor():
     if status != prev_status:
         if status == 1:
-            PWM.setMotorModel(2000,2000,2000,2000)       #Forward
+            PWM.setMotorModel(1000,1000,1000,1000)       #Forward
         elif status == 2:
-            PWM.setMotorModel(-2000,-2000,-2000,-2000)   #Back
+            PWM.setMotorModel(-1000,-1000,-1000,-1000)   #Back
         elif status == 3:
-            PWM.setMotorModel(-500,-500,2000,2000)       #Left
+            PWM.setMotorModel(-250,-250,1000,1000)       #Left
         elif status == 4:
-            PWM.setMotorModel(2000,2000,-500,-500)       #Right
+            PWM.setMotorModel(1000,1000,-250,-250)       #Right
 
-PWM=Motor()
-bd = BlueDot(cols=3, rows=3)
 
 if __name__ == '__main__':
     PWM.setMotorModel(0,0,0,0)
@@ -151,6 +151,5 @@ if __name__ == '__main__':
     bd[0,2].visible = False
     bd[1,2].when_pressed = back
     bd[1,2].when_released = stop
-    bd[2,2].visible = False
-    
+    bd[2,2].visible = False    
     
